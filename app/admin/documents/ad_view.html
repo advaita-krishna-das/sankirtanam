@@ -1,0 +1,210 @@
+{% extends "admin.html" %}
+{% set active_page = "admin/documents" %}
+{% block body %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Отправитель</h3>
+    </div>
+
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">Имя</label>
+                <div class="col-sm-10">
+                    <p id="name" class="form-control-static">{{ name }}</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="contacts" class="col-sm-2 control-label">Контакты</label>
+                <div class="col-sm-10">
+                    <p id="contacts" class="form-control-static">{{ contacts }}</p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Отчет</h3>
+    </div>
+
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="location" class="col-sm-2 control-label">Локация</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="location" placeholder="Локация" value="{{ location }}">
+                    <span id="location-errors" class="help-block"></span>
+                    <span class="help-block">Локация за которую был отправлен отчёт</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="event" class="col-sm-2 control-label">Дата</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="event" placeholder="Дата или событие" value="{{ event }}">
+                    <input type="hidden" id="event-type">
+                    <span id="event-errors" class="help-block"></span>
+                    <span class="help-block">
+                        Дата или событие
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="report" class="col-sm-2 control-label">Отчёт</label>
+                <div class="col-sm-10">
+                    <div id="report" contenteditable="true">{{ report|safe }}</div>
+                    <span id="report-errors" class="help-block"></span>
+                    <span class="help-block">Данные отчёта</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary" id="save" data-complete-text="Отчёт сохранён"
+                            data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Отправляем отчёт">Сохранить
+                    </button>
+
+                    <button type="submit" class="btn btn-success pull-right disabled" id="accept" data-complete-text="Отчёт сохранён"
+                            data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Отправляем отчёт">Принять
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="modal fade" id="acceptedModal" tabindex="-1" role="dialog" aria-labelledby="acceptedModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="acceptedModalLabel">Принято!</h4>
+            </div>
+            <div class="modal-body">Отчёт принят.</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var controller = create();
+
+$(document).ready(function() {
+    $("#location").autocomplete({
+        source: "/autocomplete/locations",
+        minLength: 3,
+    });
+
+    $("#event").autocomplete({
+        source: "/autocomplete/events",
+        minLength: 3,
+    })
+
+    $("#save").bind("click", function(e) {
+        e.preventDefault()
+        controller.save()
+    })
+
+    $("#accept").bind("click", function(e) {
+        e.preventDefault()
+
+        isDisabled = $(this).hasClass("disabled");
+        if (isDisabled) return;
+
+        controller.accept()
+    })
+
+    $("#report").bind("blur keyup paste copy cut mouseup", function(e) {
+        controller.validationRequired = true;
+        $("#accept").addClass("disabled");
+    })
+
+    vt = setInterval(function() {
+        if (controller.validationRequired) controller.validate(controller.getDocument(), false);
+    }, 2500);
+
+    controller.validate(controller.getDocument(), true);
+});
+
+
+function create() {
+    var controller = {};
+
+    controller.save = function() {
+        var url = "/admin/documents/{{key}}/save";
+        var doc = this.getDocument();
+
+        $.post(url, JSON.stringify(doc), function(response) {
+            var errors = response["errors"];
+            controller.processValidationResponse(errors, true);
+        });
+    }
+
+    controller.accept = function() {
+        var url = "/admin/documents/{{ key }}/accept";
+        var doc = controller.getDocument();
+
+        $.post(url, JSON.stringify(doc), function(response) {
+            var isSuccessful = response["status"] == true;
+
+            if (isSuccessful == true) {
+                $("#acceptedModal").modal();
+            }
+        });
+    }
+
+    controller.getDocument = function() {
+        return {
+            location: $("#location").val(),
+            event: $("#event").val(),
+            report: $("#report").html()
+        }
+    }
+
+    controller.validate = function(report, enableAccept) {
+        var url = "/admin/documents/{{ key }}/validate";
+
+        $.post(url, JSON.stringify(report), function(data) {
+            controller.processValidationResponse(data["errors"], enableAccept);
+            controller.validationRequired = false;
+        });
+    }
+
+    controller.processValidationResponse = function(errors, enableAccept) {
+        $(".cell-error").removeClass("cell-error");
+        var table = $("table")[0];
+        var hasErrors = errors.length > 0;
+
+        for (error of errors) {
+            row = error["row"];
+            column = error["column"];
+
+            var cell = $(table.rows[row].cells[column]);
+            cell.addClass("cell-error");
+        }
+
+        if (enableAccept) {
+            if (hasErrors) {
+                $("#accept").addClass("disabled");
+            } else {
+                $("#accept").removeClass("disabled");
+            }
+        }
+    }
+
+    controller.validationRequired = false;
+
+    return controller;
+}
+
+
+</script>
+{% endblock %}

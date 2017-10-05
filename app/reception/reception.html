@@ -1,0 +1,163 @@
+{% extends "public.html" %}
+{% set active_page = "reception" %}
+
+{% block body %}
+<p>Здесь вы можете отправить отчёт о распространении книг.</p>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Отправитель</h3>
+    </div>
+
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">Имя</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name" placeholder="Имя" value="{{ name }}">
+                    <span class="help-block">Представьтесь, пожалуйста</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="contacts" class="col-sm-2 control-label">Контакты</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="contacts" placeholder="Контакты">
+                    <span class="help-block">Оставьте свои контакты, чтобы мы смогли связаться с вами в случае необходимости</span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Отчет</h3>
+    </div>
+
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div id="location-group" class="form-group">
+                <label for="location" class="col-sm-2 control-label">Локация</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="location" placeholder="Локация" value="{{ name }}">
+                    <span id="location-errors" class="help-block"></span>
+                    <span class="help-block">Введите название города или ашрама за который Вы отправляете отчет. Пример: "Санкт-Петербург", "Москва. Ашрам Бхактиведанты".</span>
+                </div>
+            </div>
+
+            <div id="event-group" class="form-group">
+                <label for="event" class="col-sm-2 control-label">Дата</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="event" placeholder="Дата или событие">
+                    <input type="hidden" id="event-type">
+                    <span id="event-errors" class="help-block"></span>
+                    <span class="help-block">
+                        Введите дату отчета или название сбытия, напимер: Январь 2016, Марафон Прабхупады 2016
+                    </span>
+                </div>
+            </div>
+
+
+            <div id="report-group" class="form-group">
+                <label for="report" class="col-sm-2 control-label">Отчёт</label>
+                <div class="col-sm-10">
+                    <div id="report" contenteditable="true"></div>
+                    <span id="report-errors" class="help-block"></span>
+                    <span class="help-block">Вставьте данные из Excel сюда.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary" id="send" data-complete-text="Отчёт сохранён"
+                            data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Отправляем отчёт">Отправить
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="modal fade" id="acceptedModal" tabindex="-1" role="dialog" aria-labelledby="acceptedModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="acceptedModalLabel">Принято!</h4>
+            </div>
+            <div class="modal-body">
+                Ваша заявка принята. Данные будут добавлены после обработки администраторами сайта.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Autocomplete fields configuration
+
+    $("#location").autocomplete({
+        source: "/autocomplete/locations",
+        minLength: 3,
+    });
+
+    $("#event").autocomplete({
+        source: "/autocomplete/events",
+        minLength: 3
+    });
+
+    // Send report handler
+
+    $("#send").bind("click", function(e) {
+        e.preventDefault();
+
+        // create report json object
+        var report = {
+            name: $("#name").val(),
+            contacts: $("#contacts").val(),
+            location: $("#location").val(),
+            event: $("#event").val(),
+            report: $("#report").html()
+        }
+
+        isReportValid = validate(report);
+        if (isReportValid) send(report);
+    });
+
+    function validate(report) {
+        var hasError = false;
+        var fields = ["location", "event", "report"];
+        for (field of fields) {
+            var value = report[field];
+            if (!value) {
+                $("#" + field + "-group").addClass("has-error");
+                hasError = true;
+            } else {
+                $("#" + field + "-group").removeClass("has-error");
+            }
+        }
+        return !hasError;
+    }
+
+    function send(report) {
+        $("#send").button("loading");
+        $.post("/reception/accept", JSON.stringify(report), function(data) {
+            $("#send").button("reset");
+            if (data["status"] == "ok") {
+                $("#acceptedModal").modal();
+            } else {
+                alert("Заявка не принята. Что-то сломалась. Сообщите нам об этом.");
+            }
+        });
+    }
+
+});
+
+</script>
+{% endblock %}

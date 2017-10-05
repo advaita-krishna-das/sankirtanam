@@ -1,0 +1,28 @@
+{% extends "app.html" %}
+{% block navigation %}
+{% set ic = incoming_count() %}
+<style>
+    body { padding-top: 70px; }
+</style>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <img alt="SS" src="http://www.hkm-chennai.org/images/widget/8095sankirtan.png" width="24">
+            </a>
+        </div>
+
+        <ul class="nav navbar-nav">
+            <li {%if active_page=='admin'%}class='active'{%endif%}><a href="/admin">Главная</a></li>
+            <li {%if active_page=='admin/documents'%}class='active'{%endif%}><a href="/admin/documents">Входящие
+                {% if ic > 0 %}<span class="badge">{{ ic }}</span>{% endif %}
+            </a></li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="/reception">На сайт</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
