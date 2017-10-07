@@ -1,0 +1,74 @@
+{% extends "public.html" %}
+{% set active_page = "overall_report" %}
+{% block body %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">Топ городов</div>
+
+    <table class="table" data-order='[[ 1, "desc" ]]'>
+        <thead>
+            <tr>
+                <th>Локация</th>
+                <th>Очки</th>
+                <th>Книги</th>
+                <th>МБ</th>
+                <th>Б</th>
+                <th>СР</th>
+                <th>М</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for r in locations_report.rows %}
+            <tr>
+                <td>
+                    <a href="/reports/location/{{ r.location }}">{{ r.location }}</a>
+                </td>
+                <td>{{ r.scores }}</td>
+                <td>{{ r.books }}</td>
+                <td>{{ r.huge }}</td>
+                <td>{{ r.big }}</td>
+                <td>{{ r.medium }}</td>
+                <td>{{ r.small }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Топ распространителей</div>
+
+    <table class="table" data-order='[[ 2, "desc" ]]'>
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Локация</th>
+                <th>Очки</th>
+                <th>Книги</th>
+                <th>МБ</th>
+                <th>Б</th>
+                <th>СР</th>
+                <th>М</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for r in persons_report.rows %}
+            <tr>
+                <td>{{ r.name }}</td>
+                <td><a href="/reports/location/{{r.location}}">{{ r.location }}</a></td>
+                <td>{{ r.scores }}</td>
+                <td>{{ r.books }}</td>
+                <td>{{ r.huge }}</td>
+                <td>{{ r.big }}</td>
+                <td>{{ r.medium }}</td>
+                <td>{{ r.small }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

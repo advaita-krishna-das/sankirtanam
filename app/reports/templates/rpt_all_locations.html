@@ -1,0 +1,38 @@
+{% extends "public.html" %}
+
+{% set active_page = "location_report" %}
+
+{% block body %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">Топ городов</div>
+
+    <table class="table table-fixed">
+        <thead>
+        <tr>
+            <th>Локация</th>
+            <th>Очки</th>
+            <th>Книги</th>
+            {% for year in report.years %}
+                <th>{{ year }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for location in report.locations %}
+        <tr>
+            <td>
+                <a href="/reports/location/{{location}}">{{ location }}</a>
+            </td>
+            <td>{{ report.overall_scores(location) }}</td>
+            <td>{{ report.overall_books(location) }}</td>
+            {% for year in report.years %}
+                <td>{{ report.scores(location, year) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

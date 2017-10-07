@@ -1,0 +1,88 @@
+{% extends "public.html" %}
+{% set active_page = "location_report" %}
+{% block body %}
+
+{% set mn=["Янв", "Фев", "Мар", "Апр", "Май", "Июн",
+    "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"] %}
+
+<h2>{{ report.location }}</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">За всё время</div>
+
+    <div class="ct-chart ct-double-octave"></div>
+
+    <table class="table table-fixed">
+        <thead>
+        <tr>
+            <th>Год</th>
+            <th>Очки</th>
+            <th>Книги</th>
+            {% for i in range(0, 12) %}
+            <th>{{mn[i]}}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for year in report.years %}
+        <tr>
+            <td>{{ year }}</td>
+            <td>{{ report.overall_scores(year) }}</td>
+            <td>{{ report.overall_books(year) }}</td>
+            {% for month in range(1, 13) %}
+            <td>{{ report.scores(year, month) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Топ распространителей</div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Очки</th>
+            <th>Книги</th>
+            <th>МБ</th>
+            <th>Б</th>
+            <th>СР</th>
+            <th>М</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for p in persons.rows %}
+        <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.scores }}</td>
+            <td>{{ p.books }}</td>
+            <td>{{ p.huge }}</td>
+            <td>{{ p.big }}</td>
+            <td>{{ p.medium }}</td>
+            <td>{{ p.small }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+var data = {
+    labels: {{report.chart[0]|safe}},
+    series: [{{report.chart[1]|safe}}]
+};
+
+new Chartist.Line('.ct-chart', data, {
+  low: 0,
+  showArea: true/*,
+  lineSmooth: Chartist.Interpolation.none()*/
+});
+</script>
+{% endblock %}

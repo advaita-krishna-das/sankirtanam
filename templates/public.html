@@ -1,15 +1,12 @@
 {% extends "app.html" %}
+
 {% block navigation %}
-
 {% set navigation_bar = [
-    ('/reception', 'reception', 'Отправить'),
-    ('/reports', 'reports', 'Общий отчёт')
+    ("/reception", "reception", "Отправить"),
+    ("/reports/overall", "overall_report", "Общий отчёт"),
+    ("/reports/location", "location_report", "Отчёт по локации")
 ] -%}
-{% set active_page = active_page|default('index') -%}
-
-<style>
-    body { padding-top: 70px; }
-</style>
+{% set active_page = active_page|default("index") -%}
 
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -21,8 +18,10 @@
 
         <ul class="nav navbar-nav">
             {% for href, id, caption in navigation_bar %}
-                <li{% if id == active_page %} class="active"{% endif %}>
-                    <a href="{{ href|e }}">{{ caption|e }}</a></li>
+                {% set active_class = "active" if id == active_page else "" %}
+                <li class="{{ active_class }}">
+                    <a href="{{ href|e }}">{{ caption|e }}</a>
+                </li>
             {% endfor %}
         </ul>
 

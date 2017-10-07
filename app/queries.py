@@ -35,19 +35,6 @@ def by_location(count=None, group_level=1, start=None, end=None, sort_func=None,
                  reverse=reverse, count=count)
 
 
-def top_persons(count=15):
-    def __map(x):
-        z = __view(x)
-        z["name"] = x["key"][0]
-        z["location"] = x["key"][1]
-        return z
-
-    r = db.view("report/byPerson", group=True, group_level=2)  # fetch all the records
-    v = map(lambda x: __map(x), r)  # map each doc to view
-    s = sorted(v, key=lambda x: x["scores"], reverse=True)  # sort by scores
-    return s[:count]  # get top 15 elements
-
-
 def __view(record):
     return {
         "key": record.key,

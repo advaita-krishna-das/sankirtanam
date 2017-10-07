@@ -1,24 +1,31 @@
 from flask import Blueprint, render_template
 
-from app.queries import by_location, top_persons
+from app.reports.models import LocationReport
+from app.reports.models.person import PersonReport
 
-reports = Blueprint("reports", __name__, template_folder=".")
+reports = Blueprint("reports", __name__, template_folder="./templates")
 
 
-@reports.route("/")
-def index():
+@reports.route("/overall")
+def reports_overall():
+    """Overall report."""
+    return render_template("rpt_overall.html",
+                           locations_report=LocationReport(kind=LocationReport.OVERALL),
+                           persons_report=PersonReport())
+
+
+@reports.route("/location")
+def reports_locations():
+    """Report for all locations."""
+    return render_template("rpt_all_locations.html",
+                           report=LocationReport())
+
+
+@reports.route("/location/<string:location>")
+def reports_location(location):
     """Index page of reports."""
-    l = by_location()
-    p = top_persons(count=15)
-    return render_template("reports.html", locations=l, persons=p)
+    return render_template("rpt_location.html",
+                           report=LocationReport(location=location),
+                           persons=PersonReport(location=location))
 
 
-@reports.route("/location/<string:name>")
-def location(name):
-    """Index page of reports."""
-    l = by_location(group_level=3, start=[name, 0, 0], end=[name, 9999, 9999],
-                    sort_func=lambda x: [x["year"], x["month"]], reverse=False)
-    labels = map(lambda x: "{}/{}".format(x["year"], x["month"]), l)
-    values = map(lambda x: x["scores"], l)
-
-    return render_template("location.html", data=l, labels=list(labels), values=list(values), name=name)
