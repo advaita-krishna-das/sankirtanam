@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template
+from flask_login import login_required
 
 from app.autocomplete import __get_date_by_name
 from app.parser import parse
@@ -9,6 +10,7 @@ documents = Blueprint("admin/documents", __name__, template_folder=".")
 
 
 @documents.route("/")
+@login_required
 def index():
     """Displays list of incoming documents."""
     f = db.view("document/all")  # fetch all the documents
@@ -17,6 +19,7 @@ def index():
 
 
 @documents.route("/<string:key>")
+@login_required
 def view(key):
     """Displays form to edit incoming document."""
     d = db["document/" + key]
@@ -24,6 +27,7 @@ def view(key):
 
 
 @documents.route("/<string:key>/validate", methods=["POST"])
+@login_required
 def validate_doc(key):
     """Validates document."""
     j = request.get_json(force=True)
@@ -38,6 +42,7 @@ def validate_doc(key):
 
 
 @documents.route("/<string:key>/save", methods=["POST"])
+@login_required
 def save(key):
     """Saves changes."""
     j = request.get_json(force=True)
@@ -56,6 +61,7 @@ def save(key):
 
 
 @documents.route("/<string:key>/accept", methods=["POST"])
+@login_required
 def accept(key):
     """Creates report from document using key specified."""
     doc = db["document/" + key]
@@ -70,6 +76,7 @@ def accept(key):
 
 
 @documents.route("/<string:key>/delete", methods=["POST"])
+@login_required
 def delete(key):
     doc = db["document/" + key]
     db.delete(doc)
