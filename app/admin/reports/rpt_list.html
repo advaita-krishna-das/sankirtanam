@@ -1,0 +1,51 @@
+{% extends "admin.html" %}
+{% set active_page = "admin/reports" %}
+{% block body %}
+<p>Список принятых отчётов.</p>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Отчёты</h3>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Событие</th>
+            <th>Локация</th>
+            <th>Дата</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        {% for doc in reports %}
+        <tr id="row{{doc.key}}">
+            <td>{{ doc.event }}</td>
+            <td>{{ doc.location }}</td>
+            <td>{{ doc.date }}</td>
+            <td>
+                <a class="btn btn-default btn-xs" role="button" href="/admin/reports/{{ doc.key }}">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </a>
+                <a class="delete btn btn-default btn-xs" data-key="{{ doc.key }}">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<script>
+$(document).ready(function() {
+    $(".delete").bind("click", function(e) {
+        e.preventDefault();
+        var key = $(this).data("key");
+        $.post("/admin/reports/" + key + "/delete", function(data) {
+            if (data["status"] == "ok") {
+                $("#row" + key).remove();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

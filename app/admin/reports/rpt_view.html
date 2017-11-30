@@ -1,0 +1,17 @@
+{% extends "admin.html" %}
+{% set active_page = "admin/reports" %}
+{% block body %}
+
+<table class="table">
+    {% for row in data %}
+        <tr>
+            <td>{{row[0]}}</td>
+            <td>{{row[1]}}</td>
+            <td>{{row[2]}}</td>
+            <td>{{row[3]}}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}
