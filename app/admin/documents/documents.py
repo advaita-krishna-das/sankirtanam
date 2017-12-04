@@ -85,12 +85,14 @@ def delete(key):
 
 def __save_report(key, doc):
     """Saves report using data from specified document."""
-    rpt_id = "report/" + key
+    date = __get_date_by_name(doc["event"])
+    rpt_id = "report/" + doc["location"] + "-" + str.join("-", map(lambda x: str(x), date))
+
     rpt = db.get(rpt_id, {})  # get report or create new one
     rpt["_id"] = key
     rpt["location"] = doc["location"]
     rpt["event"] = doc["event"]
-    rpt["date"] = __get_date_by_name(doc["event"])
+    rpt["date"] = date
     rpt["data"] = parse(doc["report"])
     db[rpt_id] = rpt
 
