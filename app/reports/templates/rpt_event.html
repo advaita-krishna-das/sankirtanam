@@ -1,0 +1,50 @@
+{% extends "public.html" %}
+{% set active_page = "event_report" %}
+{% block body %}
+
+<h2>{{ report.event }}</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">За событие</div>
+
+    <div class="table-scroll">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Очки</th>
+                <th>Книги</th>
+                <th>МБ</th>
+                <th>Б</th>
+                <th>С</th>
+                <th>М</th>
+                {% for r in range(1, 32) %}
+                    <th>{{r}}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+
+            <tbody>
+                {% for r in report.rows %}
+                <tr>
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.scores }}</td>
+                    <td>{{ r.books }}</td>
+                    <td>{{ r.huge }}</td>
+                    <td>{{ r.big }}</td>
+                    <td>{{ r.medium }}</td>
+                    <td>{{ r.small }}</td>
+
+                    {% for d in r.details %}
+                        <td>{{d}}</td>
+                    {% endfor %}
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+{% endblock %}

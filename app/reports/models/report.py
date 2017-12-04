@@ -2,9 +2,10 @@ from app.queries import query
 
 
 class Report:
-    def __init__(self, view, db_options):
+    def __init__(self, view, db_options, books_offset=0):
         self.__db_view_name = view
         self.__db_options = db_options
+        self._books_offset = books_offset
         self._rows = list(map(
             lambda x: self._view(x),
             self.__fetch()))
@@ -17,20 +18,21 @@ class Report:
         return query(self.__db_view_name, **self.__db_options)
 
     def _view(self, record):
+        bo = self._books_offset
         return {
             "key": record.key,
-            "huge": record.value[0],
-            "big": record.value[1],
-            "medium": record.value[2],
-            "small": record.value[3],
+            "huge": record.value[bo+0],
+            "big": record.value[bo+1],
+            "medium": record.value[bo+2],
+            "small": record.value[bo+3],
             "books": self.__books(record.value),
             "scores": self.__scores(record.value),
         }
 
-    @staticmethod
-    def __books(record):
-        return record[0] + record[1] + record[2] + record[3]
+    def __books(self, record):
+        bo = self._books_offset
+        return record[bo+0] + record[bo+1] + record[bo+2] + record[bo+3]
 
-    @staticmethod
-    def __scores(record):
-        return 2 * record[0] + 1 * record[1] + 0.5 * record[2] + 0.25 * record[3]
+    def __scores(self, record):
+        bo = self._books_offset
+        return 2 * record[bo+0] + 1 * record[bo+1] + 0.5 * record[bo+2] + 0.25 * record[bo+3]

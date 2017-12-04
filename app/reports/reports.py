@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template
 
 from app.reports.models import LocationReport
+from app.reports.models.event import EventReport
+from app.reports.models.event_overall import EventOverallReport
 from app.reports.models.person import PersonReport
 
 reports = Blueprint("reports", __name__, template_folder="./templates")
@@ -29,3 +31,15 @@ def reports_location(location):
                            persons=PersonReport(location=location))
 
 
+@reports.route("/event")
+def reports_events():
+    """Index page of reports."""
+    return render_template("rpt_events.html",
+                           report=EventOverallReport())
+
+
+@reports.route("/event/<string:event>")
+def reports_event(event):
+    """Index page of reports."""
+    return render_template("rpt_event.html",
+                           report=EventReport(event=event))
