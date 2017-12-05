@@ -25,14 +25,14 @@ class Report:
             "big": record.value[bo+1],
             "medium": record.value[bo+2],
             "small": record.value[bo+3],
-            "books": self.__books(record.value),
-            "scores": self.__scores(record.value),
+            "books": self._books(record.value),
+            "scores": self._scores(record.value),
         }
 
-    def __books(self, record):
+    def _books(self, record):
         bo = self._books_offset
         return record[bo+0] + record[bo+1] + record[bo+2] + record[bo+3]
 
-    def __scores(self, record):
+    def _scores(self, record):
         bo = self._books_offset
         return 2 * record[bo+0] + 1 * record[bo+1] + 0.5 * record[bo+2] + 0.25 * record[bo+3]

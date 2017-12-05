@@ -16,6 +16,10 @@ class EventOverallReport(Report):
         view["event"] = record["key"][0]
         return view
 
+    def _books(self, record):
+        bo = self._books_offset
+        return (record[bo+0] + record[bo+1] + record[bo+2] + record[bo+3]) or record[4]
+
     @staticmethod
     def __db_options():
         return {"group": True, "group_level": 1}

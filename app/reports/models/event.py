@@ -9,7 +9,7 @@ class EventReport(Report):
         db_options = self.__db_options(event=event)
         super().__init__(self.__DB_VIEW_NAME, db_options, books_offset=1)
         self.__event = event
-        self._rows.sort(key=lambda x: x["scores"], reverse=True)
+        self._rows.sort(key=lambda x: x["scores"] or x["count"], reverse=True)
 
     @property
     def event(self):
@@ -22,6 +22,7 @@ class EventReport(Report):
         view["location"] = record["key"][1]
         view["name"] = record["value"][0]
         view["details"] = record["value"][5:]
+        view["count"] = sum(record["value"][5:])
         return view
 
     @staticmethod
